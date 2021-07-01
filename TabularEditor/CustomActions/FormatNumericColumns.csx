@@ -6,11 +6,11 @@
 
 foreach (var c in Model.AllColumns)
 {
-    if(c.DataType == DataType.Decimal || c.DataType == DataType.Double && c.FormatString == null)
+    if(c.DataType == DataType.Decimal  && c.FormatString == "" || c.DataType == DataType.Double && c.FormatString == "")
     {  
         c.FormatString = "#,0.00";
     }
-    if(c.DataType == DataType.Int64 && c.FormatString == null)
+    if(c.DataType == DataType.Int64 && c.FormatString == "")
     {
         c.FormatString = "#,0";
     }
