@@ -11,7 +11,7 @@ foreach(var m in Model.AllMeasures)
     {    
         m.Description = "Expression: " + m.Expression;
     }
-    else
+    else if (!m.Description.Contains("Expression"))
     {
         m.Description = m.Description + " Expression: " + m.Expression;
     }
