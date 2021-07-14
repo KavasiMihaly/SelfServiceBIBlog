@@ -1,0 +1,1 @@
+start /wait TabularEditor.exe "server" "dataset" -S "script" -D "server" "dataset" -O
