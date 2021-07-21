@@ -1,2 +1,8 @@
-var tsv = ExportProperties(Model.Relationships);
-tsv.Output();
+// Collect Relationship information:
+var objects = Model.Relationships;
+ 
+// Get their properties:
+var tsv = ExportProperties(objects);
+ 
+// Output to screen (can then be copy-pasted into Excel):
+ tsv.Output();
