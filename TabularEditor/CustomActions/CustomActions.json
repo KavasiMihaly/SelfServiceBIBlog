@@ -1,0 +1,60 @@
+﻿{
+  "Actions": [
+    {
+      "Name": "CamelCase to Proper Case",
+      "Enabled": "true",
+      "Execute": "//Name: CamelCase to Proper Case\r\n//Tooltip: Create properly formatted names. If used with PBIX than it only works with measures\r\n//Enable: Table, Column, Measure, Hierarchy, Hierarchy Level, Perspective\r\n\r\nforeach(var obj in Selected.OfType<ITabularNamedObject>()) {\r\n    var oldName = obj.Name;\r\n    var newName = new System.Text.StringBuilder();\r\n    for(int i = 0; i < oldName.Length; i++) {\r\n        // First letter should always be capitalized:\r\n        if(i == 0) newName.Append(Char.ToUpper(oldName[i]));\r\n\r\n        // A sequence of two uppercase letters followed by a lowercase letter should have a space inserted\r\n        // after the first letter:\r\n        else if(i + 2 < oldName.Length && char.IsLower(oldName[i + 2]) && char.IsUpper(oldName[i + 1]) && char.IsUpper(oldName[i]))\r\n        {\r\n            newName.Append(oldName[i]);\r\n            newName.Append(\" \");\r\n        }\r\n\r\n        // All other sequences of a lowercase letter followed by an uppercase letter, should have a space\r\n        // inserted after the first letter:\r\n        else if(i + 1 < oldName.Length && char.IsLower(oldName[i]) && char.IsUpper(oldName[i+1]))\r\n        {\r\n            newName.Append(oldName[i]);\r\n            newName.Append(\" \");\r\n        }\r\n        else\r\n        {\r\n            newName.Append(oldName[i]);\r\n        }\r\n    }\r\n    obj.Name = newName.ToString();\r\n}",
+      "Tooltip": "Create properly formatted names. If used with PBIX than it only works with measures",
+      "ValidContexts": "Table, TableObject, Level, Perspective"
+    },
+    {
+      "Name": "Create %",
+      "Enabled": "true",
+      "Execute": "//Name: Create %\r\n//Tooltip: Creates a % calculation based on the selected measures. (Order of selection matters)\r\n//Enable: Measure\r\n\r\nvar m = Selected.Measures;\r\nif (m.Count() == 2)\r\n{\r\n    var first = m.First();\r\n    var last = m.Last();\r\n    var newMeasure = first.Table.AddMeasure(\r\n        \"% \" + first.Name,                                                                  // Name\r\n        \"DIVIDE(\" + first.DaxObjectFullName + \",\" + last.DaxObjectFullName + \")\",           // DAX expression\r\n        m.First().DisplayFolder                                                             // Display Folder   \r\n        );\r\n        // Set the format string on the new measure:\r\n    newMeasure.FormatString = \"0.00%;-0.00%;0.00%\";\r\n\r\n        // Provide some documentation:\r\n    newMeasure.Description = \"Expression: \" +newMeasure.Expression;\r\n};\r\nif (m.Count() != 2)\r\n{    \r\n    Output(\"Select 2 Measures to perform the action\");\r\n}",
+      "Tooltip": "Creates a % calculation based on the selected measures. (Order of selection matters)",
+      "ValidContexts": "Measure"
+    },
+    {
+      "Name": "Create AVG",
+      "Enabled": "true",
+      "Execute": "//Name: Create AVG\r\n//Tooltip: Creates a AVG measure for every currently selected column and hide the column.\r\n//Enable: Column\r\n \r\nforeach(var c in Selected.Columns)\r\n{\r\n    c.Table.AddMeasure(\r\n        \"Avg of \" + c.Name,                    // Name\r\n        \"AVERAGE(\" + c.DaxObjectFullName + \")\",    // DAX expression\r\n        c.DisplayFolder                        // Display Folder\r\n    );\r\n    c.IsHidden = true;\r\n}",
+      "Tooltip": "Creates a AVG measure for every currently selected column and hide the column.",
+      "ValidContexts": "Column"
+    },
+    {
+      "Name": "Create Base Column folders",
+      "Enabled": "true",
+      "Execute": "//Name: Create Base Column folders\r\n//Tooltip: Puts columns into an other columns folder. ID columns in an id folder and hides them.\r\n//Enable: Model\r\n \r\nforeach(var c in Model.AllColumns)\r\n{\r\n    c.DisplayFolder = \"Other Columns\";\r\n    \r\n    if(c.Name.ToLower().Contains(\"id\"))\r\n    {\r\n        c.DisplayFolder = \"IDs\";\r\n        c.IsHidden = true;\r\n    }\r\n   \r\n}",
+      "Tooltip": "Puts columns into an other columns folder. ID columns in an id folder and hides them.",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Create SUM",
+      "Enabled": "true",
+      "Execute": "//Name: Create SUM\r\n//Tooltip: Creates a SUM measure for every currently selected column and hide the column.\r\n//Enable: Column\r\n \r\nforeach(var c in Selected.Columns)\r\n{\r\n    c.Table.AddMeasure(\r\n        \"Sum of \" + c.Name,                    // Name\r\n        \"SUM(\" + c.DaxObjectFullName + \")\",    // DAX expression\r\n        c.DisplayFolder                        // Display Folder\r\n    );\r\n    c.IsHidden = true;\r\n}",
+      "Tooltip": "Creates a SUM measure for every currently selected column and hide the column.",
+      "ValidContexts": "Column"
+    },
+    {
+      "Name": "Default Measure Descriptions",
+      "Enabled": "true",
+      "Execute": "//Name: Default Measure Description\r\n//Tooltip: Adds expression to the description\r\n//Enable: Model\r\n\r\nforeach(var m in Model.AllMeasures)\r\n{\r\n    m.Description = \"Expression: \" + m.Expression;\r\n   \r\n}",
+      "Tooltip": "Adds expression to the description",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Format Measures",
+      "Enabled": "true",
+      "Execute": "//Name: Format Measures\r\n//Tooltip: Format all measures using the DAX Formatter API\r\n//Enable: Model\r\n\r\nforeach(var m in Model.AllMeasures)\r\n{\r\n    m.Expression = FormatDax(m.Expression);\r\n   \r\n}",
+      "Tooltip": "Format all measures using the DAX Formatter API",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Time intelligence",
+      "Enabled": "true",
+      "Execute": "//Name: Time intelligence\r\n//Tooltip: Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)\r\n//Enable: Measure\r\n\r\nvar dateColumn = \"'Calendar'[Dates]\";\r\nvar displayFolder = \"Time Intelligence\";\r\n\r\nforeach(var m in Selected.Measures) {\r\n    // Year-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YTD\",                                       // Name\r\n        \"TOTALYTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                      // Display Folder\r\n    );\r\n    \r\n    // Previous year:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" PY\",                                       // Name\r\n        \"CALCULATE(\" + m.DaxObjectName + \", SAMEPERIODLASTYEAR(\" + dateColumn + \"))\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );    \r\n    \r\n    // Year-over-year\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY\",                                       // Name\r\n        m.DaxObjectName + \" - [\" + m.Name + \" PY]\",            // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n    \r\n    // Year-over-year %:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY%\",                                           // Name\r\n        \"DIVIDE(\" + m.DaxObjectName + \", [\" + m.Name + \" YoY])\",    // DAX expression\r\n        displayFolder                                              // Display Folder\r\n    ).FormatString = \"0.0 %\";  // Set format string as percentage\r\n    \r\n    // Quarter-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" QTD\",                                            // Name\r\n        \"TOTALQTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",    // DAX expression\r\n        displayFolder                                             // Display Folder\r\n    );\r\n    \r\n    // Month-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" MTD\",                                       // Name\r\n        \"TOTALMTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n}",
+      "Tooltip": "Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)",
+      "ValidContexts": "Measure"
+    }
+  ]
+}
