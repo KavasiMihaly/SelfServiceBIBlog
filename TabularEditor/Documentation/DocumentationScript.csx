@@ -12,7 +12,7 @@ var objects = Model.AllMeasures.Cast<ITabularNamedObject>()
       .Concat(Model.Tables);
  
 // Get their properties
-var tsv = ExportProperties(objects,"Name,ObjectType,Parent,Description,FormatString,DataType,Expression,IsHidden,DisplayFolder,SortByColumn,SummarizeBy,Synonyms,DataCategory,SourceColumn,IsAvailableInMDX,KeepUniqueRows");
+var tsv = ExportProperties(objects,"Name,ObjectType,Parent,Description,FormatString,DataType,Expression,IsHidden,DisplayFolder,SortByColumn,SummarizeBy,Synonyms,DataCategory,SourceColumn,IsAvailableInMDX,IsUnique");
 
 // Output to screen (can then be copy-pasted into Excel):
  tsv.Output();
