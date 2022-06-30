@@ -38,15 +38,36 @@
     {
       "Name": "Default Measure Descriptions",
       "Enabled": "true",
-      "Execute": "//Name: Default Measure Description\r\n//Tooltip: Adds expression to the description\r\n//Enable: Model\r\n\r\nforeach(var m in Model.AllMeasures)\r\n{\r\n    m.Description = \"Expression: \" + m.Expression;\r\n   \r\n}",
+      "Execute": "//Name: Default Measure Description\r\n//Tooltip: Adds expression to the description\r\n//Enable: Model\r\n//Created by Mihaly Kavasi (updated by Ed Hansberry's idea)\r\n//Tabular Editor version 2.16.0\r\n\r\n//It is better to format DAX before adding it into the descriptions\r\nforeach(var m in Model.AllMeasures)\r\n{\r\n    if(m.Description == \"\")\r\n    {    \r\n        m.Description =  \"Expression:\" + \"\\n\" + m.Expression;\r\n    }\r\n    else if (!m.Description.Contains(\"Expression\"))\r\n    {\r\n        m.Description = m.Description + \"\\n\" + \"Expression:\" + \"\\n\" + m.Expression;\r\n    }\r\n    else\r\n    {\r\n        // '2021-07-05 / B.Agullo / reset expressions already added\r\n        int pos = m.Description.IndexOf(\"Expression\",0); \r\n        bool onlyExpression = (pos == 0);\r\n        \r\n        if (onlyExpression) {\r\n            m.Description = \"Expression:\" + \"\\n\" + m.Expression;\r\n        } else {\r\n            m.Description = m.Description.Substring(0,pos-1)  + \"\\n\" + \"Expression:\" + \"\\n\" + m.Expression;\r\n        }\r\n    }\r\n}",
       "Tooltip": "Adds expression to the description",
       "ValidContexts": "Model"
     },
     {
       "Name": "Format Measures",
       "Enabled": "true",
-      "Execute": "//Name: Format Measures\r\n//Tooltip: Format all measures using the DAX Formatter API\r\n//Enable: Model\r\n\r\nforeach(var m in Model.AllMeasures)\r\n{\r\n    m.Expression = FormatDax(m.Expression);\r\n   \r\n}",
+      "Execute": "//Name: Format Measures\r\n//Tooltip: Format all measures using the DAX Formatter API\r\n//Enable: Model\r\n//Created by Mihaly Kavasi\r\n//Tabular Editor version 2.16.0\r\n\r\nModel.AllMeasures.FormatDax();",
       "Tooltip": "Format all measures using the DAX Formatter API",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Hide Numeric Columns",
+      "Enabled": "true",
+      "Execute": "//Name: Hide numeric Columns\r\n//Tooltip: Hide all numeric columns from selected tables\r\n//Enable: Table\r\n//Created by Mihaly Kavasi\r\n//Tabular Editor version 2.16.0\r\n\r\n//This could be used to hide all the numeric columns from fact tables to encourage to use of explicit measures instead.\r\nforeach(var t in Selected.Tables)\r\n{\r\n    foreach(var c in t.Columns)\r\n    {\r\n        if(c.DataType == DataType.Decimal || c.DataType == DataType.Double || c.DataType == DataType.Int64)\r\n        {    \r\n        c.IsHidden = true;\r\n        }\r\n    }\r\n}",
+      "Tooltip": "Hide Numeric Columns",
+      "ValidContexts": "Table"
+    },
+    {
+      "Name": "Hide Relationship Columns",
+      "Enabled": "true",
+      "Execute": "//Name: Hide all relationship columns\r\n//Tooltip: Hide all columns on many side of a join\r\n//Enable: Model\r\n//Created by Mihaly Kavasi (originally from Matt Allington, https://exceleratorbi.com.au)\r\n//Tabular Editor version 2.16.0\r\n\r\nforeach (var r in Model.Relationships)\r\n{\r\n    var c = r.FromColumn.Name;\r\n    var t = r.FromTable.Name;\r\n    Model.Tables[t].Columns[c].IsHidden = true;\r\n}",
+      "Tooltip": "Hide Relationship Columns",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Organize ID Columns",
+      "Enabled": "true",
+      "Execute": "//Name: Organize ID Columns\r\n//Tooltip: Puts ID columns in an id folder and hides them.\r\n//Enable: Model\r\n//Created by Mihaly Kavasi\r\n//Tabular Editor version 2.16.0\r\n\r\nforeach(var c in Model.AllColumns)\r\n{\r\n    if(c.Name.ToLower().Contains(\"id\"))\r\n    {\r\n        c.DisplayFolder = \"_IDs\";\r\n        c.IsHidden = true;\r\n    }\r\n   \r\n}",
+      "Tooltip": "Organize ID Columns",
       "ValidContexts": "Model"
     },
     {
@@ -55,6 +76,13 @@
       "Execute": "//Name: Time intelligence\r\n//Tooltip: Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)\r\n//Enable: Measure\r\n\r\nvar dateColumn = \"'Calendar'[Dates]\";\r\nvar displayFolder = \"Time Intelligence\";\r\n\r\nforeach(var m in Selected.Measures) {\r\n    // Year-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YTD\",                                       // Name\r\n        \"TOTALYTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                      // Display Folder\r\n    );\r\n    \r\n    // Previous year:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" PY\",                                       // Name\r\n        \"CALCULATE(\" + m.DaxObjectName + \", SAMEPERIODLASTYEAR(\" + dateColumn + \"))\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );    \r\n    \r\n    // Year-over-year\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY\",                                       // Name\r\n        m.DaxObjectName + \" - [\" + m.Name + \" PY]\",            // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n    \r\n    // Year-over-year %:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY%\",                                           // Name\r\n        \"DIVIDE(\" + m.DaxObjectName + \", [\" + m.Name + \" YoY])\",    // DAX expression\r\n        displayFolder                                              // Display Folder\r\n    ).FormatString = \"0.0 %\";  // Set format string as percentage\r\n    \r\n    // Quarter-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" QTD\",                                            // Name\r\n        \"TOTALQTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",    // DAX expression\r\n        displayFolder                                             // Display Folder\r\n    );\r\n    \r\n    // Month-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" MTD\",                                       // Name\r\n        \"TOTALMTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n}",
       "Tooltip": "Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)",
       "ValidContexts": "Measure"
+    },
+    {
+      "Name": "Set Available in MDX (on/off)",
+      "Enabled": "true",
+      "Execute": "//Name: Set Available in MDX (on/off)\r\n//Tooltip: Turn Available in MDX attribute on or off\r\n//Enable: Model\r\n//Created by Mihaly Kavasi\r\n//Tabular Editor version 2.16.5\r\nforeach (var c in Selected.Columns)\r\n    if(c.IsAvailableInMDX == true)\r\n        c.IsAvailableInMDX = false;\r\n    else c.IsAvailableInMDX = true;",
+      "Tooltip": " Turn Available in MDX attribute on or off",
+      "ValidContexts": "Column"
     }
   ]
 }
