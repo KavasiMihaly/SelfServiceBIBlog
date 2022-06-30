@@ -9,7 +9,7 @@
     },
     {
       "Name": "Create %",
-      "Enabled": "true",
+      "Enabled": "Selected.Measures.Count == 2",
       "Execute": "//Name: Create %\r\n//Tooltip: Creates a % calculation based on the selected measures. (Order of selection matters)\r\n//Enable: Measure\r\n\r\nvar m = Selected.Measures;\r\nif (m.Count() == 2)\r\n{\r\n    var first = m.First();\r\n    var last = m.Last();\r\n    var newMeasure = first.Table.AddMeasure(\r\n        \"% \" + first.Name,                                                                  // Name\r\n        \"DIVIDE(\" + first.DaxObjectFullName + \",\" + last.DaxObjectFullName + \")\",           // DAX expression\r\n        m.First().DisplayFolder                                                             // Display Folder   \r\n        );\r\n        // Set the format string on the new measure:\r\n    newMeasure.FormatString = \"0.00%;-0.00%;0.00%\";\r\n\r\n        // Provide some documentation:\r\n    newMeasure.Description = \"Expression: \" +newMeasure.Expression;\r\n};\r\nif (m.Count() != 2)\r\n{    \r\n    Output(\"Select 2 Measures to perform the action\");\r\n}",
       "Tooltip": "Creates a % calculation based on the selected measures. (Order of selection matters)",
       "ValidContexts": "Measure"
