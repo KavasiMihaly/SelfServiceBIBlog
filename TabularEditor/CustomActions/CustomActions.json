@@ -43,6 +43,20 @@
       "ValidContexts": "Model"
     },
     {
+      "Name": "Documentation Script",
+      "Enabled": "true",
+      "Execute": "// Collect all measures, columns, hierarchies and tables (ignore automatically generated entities):\r\nvar objects = Model.AllMeasures.Cast<ITabularNamedObject>()\r\n      .Concat(Model.AllColumns.Where(c => !c.Table.Name.Contains(\"Template\") \r\n                                       && !c.Table.Name.Contains(\"LocalDate\"))\r\n              )\r\n      .Concat(Model.AllHierarchies.Where(h => !h.Table.Name.Contains(\"Template\") \r\n                                       && !h.Table.Name.Contains(\"LocalDate\"))\r\n              )\r\n      .Concat(Model.AllLevels.Where(l => !l.Table.Name.Contains(\"Template\") \r\n                                       && !l.Table.Name.Contains(\"LocalDate\"))\r\n              )\r\n      .Concat(Model.Tables);\r\n \r\n// Get their properties\r\nvar tsv = ExportProperties(objects,\"Name,ObjectType,Parent,Description,FormatString,DataType,Expression,IsHidden,DisplayFolder,SortByColumn,SummarizeBy,Synonyms,DataCategory,SourceColumn,IsAvailableInMDX,IsUnique\");\r\n\r\n// Output to screen (can then be copy-pasted into Excel):\r\n tsv.Output();",
+      "Tooltip": "Documentation Script",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Documentation Script with VPAX",
+      "Enabled": "true",
+      "Execute": "// Collect all measures, columns, hierarchies and tables (ignore automatically generated entities):\r\nvar objects = Model.AllMeasures.Cast<ITabularNamedObject>()\r\n      .Concat(Model.AllColumns.Where(c => !c.Table.Name.Contains(\"Template\") \r\n                                       && !c.Table.Name.Contains(\"LocalDate\"))\r\n              )\r\n      .Concat(Model.AllHierarchies.Where(h => !h.Table.Name.Contains(\"Template\") \r\n                                       && !h.Table.Name.Contains(\"LocalDate\"))\r\n              )\r\n      .Concat(Model.AllLevels.Where(l => !l.Table.Name.Contains(\"Template\") \r\n                                       && !l.Table.Name.Contains(\"LocalDate\"))\r\n              )\r\n      .Concat(Model.Tables);\r\n \r\n// Get their properties\r\nvar tsv = ExportProperties(objects,\"Name,ObjectType,Parent,Description,FormatString,DataType,Expression,IsHidden,DisplayFolder,SortByColumn,SummarizeBy,Synonyms,DataCategory,SourceColumn,IsAvailableInMDX,IsUnique,Annotations\");\r\n\r\n// Output to screen (can then be copy-pasted into Excel):\r\n tsv.Output();",
+      "Tooltip": "Documentation Script with VPAX",
+      "ValidContexts": "Model"
+    },
+    {
       "Name": "Format Measures",
       "Enabled": "true",
       "Execute": "//Name: Format Measures\r\n//Tooltip: Format all measures using the DAX Formatter API\r\n//Enable: Model\r\n//Created by Mihaly Kavasi\r\n//Tabular Editor version 2.16.0\r\n\r\nModel.AllMeasures.FormatDax();",
@@ -71,11 +85,18 @@
       "ValidContexts": "Model"
     },
     {
-      "Name": "Time intelligence",
+      "Name": "Relationship Script",
       "Enabled": "true",
-      "Execute": "//Name: Time intelligence\r\n//Tooltip: Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)\r\n//Enable: Measure\r\n\r\nvar dateColumn = \"'Calendar'[Dates]\";\r\nvar displayFolder = \"Time Intelligence\";\r\n\r\nforeach(var m in Selected.Measures) {\r\n    // Year-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YTD\",                                       // Name\r\n        \"TOTALYTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                      // Display Folder\r\n    );\r\n    \r\n    // Previous year:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" PY\",                                       // Name\r\n        \"CALCULATE(\" + m.DaxObjectName + \", SAMEPERIODLASTYEAR(\" + dateColumn + \"))\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );    \r\n    \r\n    // Year-over-year\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY\",                                       // Name\r\n        m.DaxObjectName + \" - [\" + m.Name + \" PY]\",            // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n    \r\n    // Year-over-year %:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY%\",                                           // Name\r\n        \"DIVIDE(\" + m.DaxObjectName + \", [\" + m.Name + \" YoY])\",    // DAX expression\r\n        displayFolder                                              // Display Folder\r\n    ).FormatString = \"0.0 %\";  // Set format string as percentage\r\n    \r\n    // Quarter-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" QTD\",                                            // Name\r\n        \"TOTALQTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",    // DAX expression\r\n        displayFolder                                             // Display Folder\r\n    );\r\n    \r\n    // Month-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" MTD\",                                       // Name\r\n        \"TOTALMTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n}",
-      "Tooltip": "Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)",
-      "ValidContexts": "Measure"
+      "Execute": "// Collect Relationship information:\r\nvar objects = Model.Relationships;\r\n \r\n// Get their properties:\r\nvar tsv = ExportProperties(objects,\"Name\");\r\n \r\n// Output to screen (can then be copy-pasted into Excel):\r\n tsv.Output();",
+      "Tooltip": "Relationship Script",
+      "ValidContexts": "Model"
+    },
+    {
+      "Name": "Relationship Script with VPAX",
+      "Enabled": "true",
+      "Execute": "// Collect Relationship information:\r\nvar objects = Model.Relationships;\r\n \r\n// Get their properties:\r\nvar tsv = ExportProperties(objects,\"Name,Annotations\");\r\n \r\n// Output to screen (can then be copy-pasted into Excel):\r\n tsv.Output();",
+      "Tooltip": "Relationship Script with VPAX",
+      "ValidContexts": "Model"
     },
     {
       "Name": "Set Available in MDX (on/off)",
@@ -83,6 +104,27 @@
       "Execute": "//Name: Set Available in MDX (on/off)\r\n//Tooltip: Turn Available in MDX attribute on or off\r\n//Enable: Model\r\n//Created by Mihaly Kavasi\r\n//Tabular Editor version 2.16.5\r\nforeach (var c in Selected.Columns)\r\n    if(c.IsAvailableInMDX == true)\r\n        c.IsAvailableInMDX = false;\r\n    else c.IsAvailableInMDX = true;",
       "Tooltip": " Turn Available in MDX attribute on or off",
       "ValidContexts": "Column"
+    },
+    {
+      "Name": "Set Sort By",
+      "Enabled": "true",
+      "Execute": "//Name: Set sort by\r\n//Tooltip: Select 2 columns to set sort the first by the last\r\n//Enable: Column\r\n\r\nvar c = Selected.Columns;\r\nif (c.Count() == 2)\r\n{\r\n    var first = c.First();\r\n    var last = c.Last();\r\n    first.SortByColumn = last;\r\n    \r\n};\r\nif (c.Count() != 2)\r\n{    \r\n    Output(\"Select 2 Column to perform the action\");\r\n}",
+      "Tooltip": "Select 2 columns to set sort the first by the last",
+      "ValidContexts": "Column"
+    },
+    {
+      "Name": "Time intelligence",
+      "Enabled": "true",
+      "Execute": "//Name: Time intelligence\r\n//Tooltip: Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)\r\n//Enable: Measure\r\n\r\nvar dateColumn = \"'Calendar'[Dates]\";\r\nvar displayFolder = \"Time Intelligence\";\r\n\r\nforeach(var m in Selected.Measures) {\r\n    // Year-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YTD\",                                       // Name\r\n        \"TOTALYTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                      // Display Folder\r\n    );\r\n    \r\n    // Previous year:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" PY\",                                       // Name\r\n        \"CALCULATE(\" + m.DaxObjectName + \", SAMEPERIODLASTYEAR(\" + dateColumn + \"))\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );    \r\n    \r\n    // Year-over-year\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY\",                                       // Name\r\n        m.DaxObjectName + \" - [\" + m.Name + \" PY]\",            // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n    \r\n    // Year-over-year %:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" YoY%\",                                           // Name\r\n        \"DIVIDE(\" + m.DaxObjectName + \", [\" + m.Name + \" YoY])\",    // DAX expression\r\n        displayFolder                                              // Display Folder\r\n    ).FormatString = \"0.0 %\";  // Set format string as percentage\r\n    \r\n    // Quarter-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" QTD\",                                            // Name\r\n        \"TOTALQTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",    // DAX expression\r\n        displayFolder                                             // Display Folder\r\n    );\r\n    \r\n    // Month-to-date:\r\n    m.Table.AddMeasure(\r\n        m.Name + \" MTD\",                                       // Name\r\n        \"TOTALMTD(\" + m.DaxObjectName + \", \" + dateColumn + \")\",     // DAX expression\r\n        displayFolder                                         // Display Folder\r\n    );\r\n}",
+      "Tooltip": "Creates time intelligence measures for every selected measure. (YTD, PY, YoY, YoY%, QTD, MTD)",
+      "ValidContexts": "Measure"
+    },
+    {
+      "Name": "Shared Expressions Script",
+      "Enabled": "true",
+      "Execute": "// Collect Share Expressions information:\r\nvar objects = Model.Expressions;\r\n \r\n// Get their properties:\r\nvar tsv = ExportProperties(objects,\"Name, Expression, Annotations\");\r\n \r\n// Output to screen (can then be copy-pasted into Excel):\r\n tsv.Output();",
+      "Tooltip": "Shared Expressions Script",
+      "ValidContexts": "Model"
     }
   ]
 }
