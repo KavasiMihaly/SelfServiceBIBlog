@@ -1,4 +1,4 @@
-// Collect Share Expressions information:
+// Collect Expressions information:
 var objects = Model.Expressions.Cast<ITabularNamedObject>().Concat(Model.AllPartitions);
  
 // Get their properties:
