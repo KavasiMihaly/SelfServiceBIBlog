@@ -5,7 +5,7 @@
 //Tabular Editor version 2.16.1
 
 // Output header row
-string output = "Dependent Measure Table\tDependent Measure Folder\tDependent Measure\tTable\tReportingFolder\tObject\tObject Type"; 
+string output = "Dependent Measure Table\tDependent Measure Folder\tDependent Measure\tDependent Measure Expression\tTable\tReportingFolder\tObject\tObject Type"; 
 
 // Loop through all selected measures:
 foreach(var m in Selected.Measures) {
@@ -18,8 +18,8 @@ foreach(var m in Selected.Measures) {
 
     // Add the rows to the output  
      foreach(var dm in allMeasureReferences)
-         output += string.Format("\r\n{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", 
-            m.Table.Name, m.DisplayFolder, m.Name,
+         output += string.Format("\r\n{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", 
+     m.Table.Name, m.DisplayFolder, m.Name, m.Expression,
             dm.Table.Name, dm.DisplayFolder, dm.Name, "Measure"
             );
     // Filter the previous list of references to column references only and keep only distinct columns:        
@@ -27,8 +27,8 @@ foreach(var m in Selected.Measures) {
      
      // Add the rows to the output    
      foreach(var dc in allColumnReferences)
-         output += string.Format("\r\n{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", 
-            m.Table.Name, m.DisplayFolder, m.Name,
+         output += string.Format("\r\n{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", 
+            m.Table.Name, m.DisplayFolder, m.Name, "",
             dc.Table.Name, dc.DisplayFolder, dc.Name, "Column"
             );
   }  
