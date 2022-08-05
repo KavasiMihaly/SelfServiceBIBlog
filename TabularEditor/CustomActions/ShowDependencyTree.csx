@@ -28,7 +28,7 @@ foreach(var m in Selected.Measures) {
      // Add the rows to the output    
      foreach(var dc in allColumnReferences)
          output += string.Format("\r\n{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}", 
-            m.Table.Name, m.DisplayFolder, m.Name, "",
+            m.Table.Name, m.DisplayFolder, m.Name, m.Expression,
             dc.Table.Name, dc.DisplayFolder, dc.Name, "Column"
             );
   }  
